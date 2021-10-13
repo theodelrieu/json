@@ -332,7 +332,9 @@ struct is_compatible_array_type_impl <
     BasicJsonType, CompatibleArrayType,
     enable_if_t <
     is_detected<iterator_t, CompatibleArrayType>::value&&
-    is_iterator_traits<iterator_traits<detected_t<iterator_t, CompatibleArrayType>>>::value >>
+    is_iterator_traits<iterator_traits<detected_t<iterator_t, CompatibleArrayType>>>::value &&
+    // special case for types like std::filesystem::path whose iterator's value_type are themselves
+    !std::is_same<CompatibleArrayType, detected_t<range_value_t, CompatibleArrayType>>::value>>
 {
     static constexpr bool value =
         is_constructible<BasicJsonType,
@@ -365,6 +367,8 @@ struct is_constructible_array_type_impl <
 is_detected<iterator_t, ConstructibleArrayType>::value&&
 is_iterator_traits<iterator_traits<detected_t<iterator_t, ConstructibleArrayType>>>::value&&
 is_detected<range_value_t, ConstructibleArrayType>::value&&
+// special case for types like std::filesystem::path whose iterator's value_type are themselves
+!std::is_same<ConstructibleArrayType, detected_t<range_value_t, ConstructibleArrayType>>::value&&
 is_complete_type <
 detected_t<range_value_t, ConstructibleArrayType >>::value >>
 {
